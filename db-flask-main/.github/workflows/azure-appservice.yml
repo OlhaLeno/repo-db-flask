@@ -1,45 +1,44 @@
-name: Deploy to Azure Web App
+name: Deploy to Azure VM
 
 on:
   push:
-    branches:
-      - main
+    branches: [master] 
+  workflow_dispatch:
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
+  deploy:
+    runs-on: ubuntu-latest 
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4  
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Deploy to Azure VM
+        uses: appleboy/ssh-action@v1.0.3  
         with:
-          python-version: '3.11'
+          host: ${{ secrets.AZURE_HOST }}  # IP-адреса вашої VM
+          username: ${{ secrets.AZURE_USERNAME }}  # Ім'я користувача для SSH підключення
+          key: ${{ secrets.SSH_PRIVATE_KEY_AZURE }}  # Приватний SSH ключ для доступу до VM
+          port: 22  # Стандартний порт для SSH
+          script: |
+            echo "Starting deployment..."
+            cd ~/database-flask  # Перехід до директорії вашого проєкту
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+            echo "Pulling latest changes..."
+            git fetch origin  # Отримуємо останні зміни з віддаленого репозиторію
+            git reset --hard origin/lab5  # Оновлюємо локальну гілку до останнього коміту в lab5
 
-      - name: Set environment variables
-        run: |
-          echo "DB_PASSWORD_AZURE=${{ secrets.DB_PASSWORD_AZURE }}" >> $GITHUB_ENV
-          echo "DB_USERNAME_AZURE=${{ secrets.DB_USERNAME_AZURE }}" >> $GITHUB_ENV
-          echo "SSH_PRIVATE_KEY_AZURE=${{ secrets.SSH_PRIVATE_KEY_AZURE }}" >> $GITHUB_ENV
+            echo "Setting up environment variables..."
+            echo "DB_HOST=${{ secrets.DB_HOST_AZURE }}" > .env  # Додавання DB_HOST, якщо потрібно
+            echo "DB_USERNAME=${{ secrets.DB_USERNAME_AZURE }}" >> .env  # Додаємо ім'я користувача БД
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD_AZURE }}" >> .env  # Додаємо пароль БД
+            echo "FLASK_APP=app.py" >> .env  # Приклад змінної середовища для Flask
+            echo "FLASK_ENV=production" >> .env  # Налаштування середовища для Flask
 
-      - name: Zip artifact
-        run: |
-          zip -r release.zip . -x "**/.git/**" "**/__pycache__/**"
+            echo "Restarting service..."
+            sudo systemctl restart hospital-app  # Перезапускаємо ваш додаток (наприклад, Flask app)
 
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY_AZURE" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.AZURE_WEBAPP_NAME }} >> ~/.ssh/known_hosts
+            echo "Checking service status..."
+            sudo systemctl status hospital-app --no-pager  # Перевіряємо статус сервісу
 
-      - name: Setup Database Connection
-        run: |
-          echo "Connecting to database with user $DB_USERNAME_AZURE and password $DB_PASSWORD_AZURE"
-          mysql -h <db_host> -u $DB_USERNAME_AZURE -p$DB_PASSWORD_AZURE -e "SHOW DATABASES;"
+            echo "Deployment completed!"  # Завершуємо деплоймент
