@@ -22,15 +22,24 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Set environment variables
+        run: |
+          echo "DB_PASSWORD_AZURE=${{ secrets.DB_PASSWORD_AZURE }}" >> $GITHUB_ENV
+          echo "DB_USERNAME_AZURE=${{ secrets.DB_USERNAME_AZURE }}" >> $GITHUB_ENV
+          echo "SSH_PRIVATE_KEY_AZURE=${{ secrets.SSH_PRIVATE_KEY_AZURE }}" >> $GITHUB_ENV
+
       - name: Zip artifact
         run: |
           zip -r release.zip . -x "**/.git/**" "**/__pycache__/**"
 
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: release.zip
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY_AZURE" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.AZURE_WEBAPP_NAME }} >> ~/.ssh/known_hosts
 
-
+      - name: Setup Database Connection
+        run: |
+          echo "Connecting to database with user $DB_USERNAME_AZURE and password $DB_PASSWORD_AZURE"
+          mysql -h <db_host> -u $DB_USERNAME_AZURE -p$DB_PASSWORD_AZURE -e "SHOW DATABASES;"
