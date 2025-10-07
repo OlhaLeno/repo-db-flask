@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Startup script для Azure App Service
+# Startup script для Azure VM (Linux)
 
-echo "Starting Bus Management API on Azure..."
+echo "Starting Bus Management API on Azure App Service..."
 
 # Отримати директорію скрипту
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"

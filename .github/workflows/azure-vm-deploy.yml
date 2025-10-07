@@ -1,0 +1,91 @@
+name: Deploy to Azure VM
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+env:
+  VM_HOST: ${{ secrets.VM_HOST }}
+  VM_USERNAME: ${{ secrets.VM_USERNAME }}
+  VM_SSH_KEY: ${{ secrets.VM_SSH_KEY }}
+  DEPLOY_PATH: '/home/azureuser/bus-management-api'
+  PYTHON_VERSION: '3.9'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies locally
+      run: |
+        cd db-flask-main
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run tests (if any)
+      run: |
+        cd db-flask-main
+        # Add your test commands here
+        echo "Tests would run here"
+
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.7.0
+      with:
+        ssh-private-key: ${{ env.VM_SSH_KEY }}
+
+    - name: Deploy to Azure VM
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+      run: |
+        # Create deployment directory
+        ssh -o StrictHostKeyChecking=no ${{ env.VM_USERNAME }}@${{ env.VM_HOST }} "mkdir -p ${{ env.DEPLOY_PATH }}"
+        
+        # Copy files to VM
+        scp -o StrictHostKeyChecking=no -r db-flask-main/* ${{ env.VM_USERNAME }}@${{ env.VM_HOST }}:${{ env.DEPLOY_PATH }}/
+        
+        # Install dependencies and restart service on VM
+        ssh -o StrictHostKeyChecking=no ${{ env.VM_USERNAME }}@${{ env.VM_HOST }} << 'EOF'
+          cd ${{ env.DEPLOY_PATH }}
+          
+          # Activate virtual environment if exists
+          if [ -d ".venv" ]; then
+            source .venv/bin/activate
+          else
+            python3 -m venv .venv
+            source .venv/bin/activate
+          fi
+          
+          # Install/update dependencies
+          pip install -r requirements.txt
+          
+          # Restart the service (assuming you're using systemd or similar)
+          sudo systemctl restart bus-management-api || echo "Service restart failed, trying manual restart"
+          
+          # If systemd service doesn't exist, start manually
+          if ! systemctl is-active --quiet bus-management-api; then
+            echo "Starting application manually..."
+            nohup ./startup.sh > app.log 2>&1 &
+          fi
+        EOF
+
+    - name: Health check
+      run: |
+        echo "Waiting for deployment to complete..."
+        sleep 30
+        
+        # Health check
+        if curl -f http://${{ env.VM_HOST }}:8000/healthz; then
+          echo "Deployment successful! Health check passed."
+        else
+          echo "Health check failed. Check the application logs."
+          exit 1
+        fi
