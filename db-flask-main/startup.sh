@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Startup script для Azure VM (Linux)
+# Startup script для Azure App Service
 
 echo "Starting Bus Management API on Azure..."
 
@@ -8,29 +8,23 @@ echo "Starting Bus Management API on Azure..."
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
-# Активувати віртуальне середовище
-if [ -d ".venv" ]; then
-    echo "Activating virtual environment..."
-    source .venv/bin/activate
-else
-    echo "ERROR: Virtual environment not found!"
-    echo "Please create it first: python3 -m venv .venv"
-    exit 1
-fi
+# Встановити змінні середовища для Azure
+export PYTHONPATH="$SCRIPT_DIR"
+export FLASK_APP="app.py"
+export FLASK_ENV="production"
 
 # Перевірити чи встановлено gunicorn
 if ! command -v gunicorn &> /dev/null; then
-    echo "ERROR: gunicorn not found!"
     echo "Installing dependencies..."
     pip install -r requirements.txt
 fi
 
-# Запуск Gunicorn з віртуального середовища
+# Запуск Gunicorn для Azure App Service
 echo "Starting Gunicorn..."
 exec gunicorn --bind=0.0.0.0:8000 \
-         --workers=4 \
+         --workers=2 \
          --timeout=600 \
          --access-logfile=- \
          --error-logfile=- \
+         --log-level=info \
          app:app
-

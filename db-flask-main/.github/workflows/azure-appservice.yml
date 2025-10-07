@@ -1,45 +1,25 @@
-name: Deploy to Azure Web App
+name: Deploy to Azure
 
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+      - name: Set up Azure CLI
+        uses: azure/setup-azurecli@v1
 
-      - name: Install dependencies
+      - name: Deploy to Azure Web App
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Set environment variables
-        run: |
-          echo "DB_PASSWORD_AZURE=${{ secrets.DB_PASSWORD_AZURE }}" >> $GITHUB_ENV
-          echo "DB_USERNAME_AZURE=${{ secrets.DB_USERNAME_AZURE }}" >> $GITHUB_ENV
-          echo "SSH_PRIVATE_KEY_AZURE=${{ secrets.SSH_PRIVATE_KEY_AZURE }}" >> $GITHUB_ENV
-
-      - name: Zip artifact
-        run: |
-          zip -r release.zip . -x "**/.git/**" "**/__pycache__/**"
-
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY_AZURE" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.AZURE_WEBAPP_NAME }} >> ~/.ssh/known_hosts
-
-      - name: Setup Database Connection
-        run: |
-          echo "Connecting to database with user $DB_USERNAME_AZURE and password $DB_PASSWORD_AZURE"
-          mysql -h <db_host> -u $DB_USERNAME_AZURE -p$DB_PASSWORD_AZURE -e "SHOW DATABASES;"
+          az webapp deploy --name cloud-app --resource-group vm1_group --src-path "C:\Users\Lenyo\repo-db-flask\db-flask-main"
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
