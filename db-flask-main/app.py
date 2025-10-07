@@ -59,5 +59,11 @@ def handle_sql_error(error):
     else:
         # Для інших помилок SQL
         return jsonify({"error": "Database error"}), 500
+
+# Для Azure App Service
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Отримати порт з змінної середовища Azure або використати 8000
+    port = int(os.environ.get('PORT', 8000))
+    debug = os.environ.get('FLASK_ENV') == 'development'
+    
+    app.run(host='0.0.0.0', port=port, debug=debug)

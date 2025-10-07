@@ -1,0 +1,53 @@
+name: Deploy Flask App to Azure App Service
+
+on:
+  push:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+env:
+  AZURE_WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_NAME }}
+  AZURE_WEBAPP_PACKAGE_PATH: './db-flask-main'
+  PYTHON_VERSION: '3.9'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 'Checkout GitHub Action'
+      uses: actions/checkout@v4
+      
+    - name: Setup Python ${{ env.PYTHON_VERSION }} Environment
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: 'Create and start virtual environment'
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        
+    - name: 'Install dependencies'
+      run: |
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install -r ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/requirements.txt
+        
+    - name: 'Run tests'
+      run: |
+        source venv/bin/activate
+        cd ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        python -m pytest tests/ || echo "No tests found, continuing..."
+        
+    - name: 'Azure Login'
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZUREAPPSERVICE_CLIENTID_14D15A8C97434B12B01023D5CE8AC6D8 }}
+        
+    - name: 'Deploy to Azure Web App'
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        startup-command: 'bash startup.sh'

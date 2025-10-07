@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Startup script для Azure VM (Linux)
+# Startup script для Azure App Service
 
 echo "Starting Bus Management API on Azure App Service..."
 
@@ -19,6 +19,15 @@ if ! command -v gunicorn &> /dev/null; then
     pip install -r requirements.txt
 fi
 
+# Створити директорію для логів якщо не існує
+mkdir -p logs
+
+# Перевірити чи існує app.py
+if [ ! -f "app.py" ]; then
+    echo "ERROR: app.py not found in current directory"
+    exit 1
+fi
+
 # Запуск Gunicorn для Azure App Service
 echo "Starting Gunicorn..."
 exec gunicorn --bind=0.0.0.0:8000 \
@@ -27,4 +36,6 @@ exec gunicorn --bind=0.0.0.0:8000 \
          --access-logfile=- \
          --error-logfile=- \
          --log-level=info \
+         --preload \
+         --chdir="$SCRIPT_DIR" \
          app:app
