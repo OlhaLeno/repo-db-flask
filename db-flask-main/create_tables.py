@@ -11,27 +11,27 @@ def create_tables():
     
     with app.app_context():
         try:
-            print("🔗 Підключення до бази даних...")
+            print("Підключення до бази даних...")
             print(f"Database URL: {app.config['SQLALCHEMY_DATABASE_URI']}")
             
             # Перевірити підключення
             result = db.session.execute(text('SELECT 1'))
-            print("✅ Підключення до бази даних успішне!")
+            print("Підключення до бази даних успішне!")
             
             # Створити таблиці
-            print("📋 Створення таблиць...")
+            print("Створення таблиць...")
             db.create_all()
-            print("✅ Таблиці створені успішно!")
+            print("Таблиці створені успішно!")
             
             # Перевірити які таблиці створені
             result = db.session.execute(text('SHOW TABLES'))
             tables = result.fetchall()
-            print(f"📊 Створено таблиць: {len(tables)}")
+            print(f"Створено таблиць: {len(tables)}")
             for table in tables:
                 print(f"  - {table[0]}")
                 
         except Exception as e:
-            print(f"❌ Помилка: {e}")
+            print(f"Помилка: {e}")
             return False
             
     return True
