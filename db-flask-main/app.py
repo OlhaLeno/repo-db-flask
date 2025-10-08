@@ -7,6 +7,7 @@ import os
 load_dotenv()
 
 from __init__ import create_app
+
 from my_project.auth.route.bus_routes import bus_bp
 from my_project.auth.route.route_routes import route_bp
 from my_project.auth.route.route_stop_routes import route_stop_bp
