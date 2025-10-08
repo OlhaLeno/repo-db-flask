@@ -28,6 +28,13 @@ jobs:
         pip install --upgrade pip
         pip install -r ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/requirements.txt
 
+    - name: 'Check if startup.sh exists'
+      run: |
+        if [ ! -f "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/startup.sh" ]; then
+          echo "ERROR: startup.sh not found"
+          exit 1
+        fi
+
     - name: 'Make startup.sh executable'
       run: chmod +x ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/startup.sh   # ← Ось тут
     
@@ -46,4 +53,4 @@ jobs:
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
         package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-        startup-command: 'bash startup.sh'
+        startup-command: 'bash ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/startup.sh'
