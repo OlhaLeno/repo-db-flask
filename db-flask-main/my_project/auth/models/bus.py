@@ -13,7 +13,6 @@ class Bus(db.Model):
 
     route = db.relationship('Route', back_populates='buses')
 
-    # Відношення з таблицею BusInspection
     inspections = db.relationship('BusInspection', back_populates='bus')
 
     def to_dict(self):

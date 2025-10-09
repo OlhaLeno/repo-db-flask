@@ -4,13 +4,13 @@ from my_project.auth.service.driver_service import DriverService
 driver_service = DriverService()
 
 def get_all_drivers():
-    """Отримати всіх водіїв
+    """Get all drivers
     ---
     tags:
       - Drivers
     responses:
       200:
-        description: Список усіх водіїв
+        description: List of all drivers
         schema:
           type: array
           items:
@@ -29,7 +29,7 @@ def get_all_drivers():
     return jsonify([driver.to_dict() for driver in drivers]), 200
 
 def get_driver_by_id(driver_id):
-    """Отримати водія за ID
+    """Get a driver by ID
     ---
     tags:
       - Drivers
@@ -38,12 +38,12 @@ def get_driver_by_id(driver_id):
         in: path
         type: integer
         required: true
-        description: ID водія
+        description: ID driver
     responses:
       200:
-        description: Інформація про водія
+        description: Information about the driver
       404:
-        description: Водія не знайдено
+        description: Driver not found
     """
     driver = driver_service.get_driver_by_id(driver_id)
     if driver:
@@ -51,7 +51,7 @@ def get_driver_by_id(driver_id):
     return jsonify({'message': 'Driver not found'}), 404
 
 def create_driver():
-    """Створити нового водія
+    """Create a new driver
     ---
     tags:
       - Drivers
@@ -70,22 +70,20 @@ def create_driver():
               type: string
     responses:
       201:
-        description: Водія успішно створено
+        description: Driver successfully created
       400:
-        description: Невірні дані
+        description: Invalid data
     """
     data = request.get_json()
     new_driver = driver_service.create_driver(data)
 
-    # Якщо сталася помилка, повертаємо її в JSON форматі
     if isinstance(new_driver, dict) and new_driver.get('error'):
         return jsonify(new_driver), 400
 
-    # Якщо створено водія, повертаємо його дані у відповіді
     return jsonify(new_driver.to_dict()), 201
 
 def update_driver(driver_id):
-    """Оновити водія
+    """Update a driver
     ---
     tags:
       - Drivers
@@ -108,9 +106,9 @@ def update_driver(driver_id):
               type: string
     responses:
       200:
-        description: Водія оновлено
+        description: Driver successfully updated
       404:
-        description: Водія не знайдено
+        description: Driver not found
     """
     data = request.get_json()
     updated_driver = driver_service.update_driver(driver_id, data)
@@ -119,7 +117,7 @@ def update_driver(driver_id):
     return jsonify({"error": "Driver not found"}), 404
 
 def delete_driver(driver_id):
-    """Видалити водія
+    """Delete a driver
     ---
     tags:
       - Drivers
@@ -130,9 +128,9 @@ def delete_driver(driver_id):
         required: true
     responses:
       200:
-        description: Водія видалено
+        description: Driver deleted successfully
       404:
-        description: Водія не знайдено
+        description: Driver not found
     """
     success = driver_service.delete_driver(driver_id)
     if success:
@@ -140,7 +138,7 @@ def delete_driver(driver_id):
     return jsonify({'message': 'Driver not found'}), 404
 
 def get_stats():
-    """Отримати статистику по водіях
+    """Get statistics about drivers
     ---
     tags:
       - Drivers
@@ -149,19 +147,17 @@ def get_stats():
         in: query
         type: string
         required: true
-        description: Тип статистики (наприклад, count, average, max, min)
+        description: Type of statistics (e.g., count, average, max, min)
     responses:
       200:
-        description: Статистика водіїв
+        description: Driver statistics
       400:
-        description: Невірний параметр stat_type
+        description: Invalid stat_type parameter
     """
-    # Отримуємо тип статистики з параметрів запиту
     stat_type = request.args.get('stat_type', default=None)
     if not stat_type:
         return jsonify({'error': 'stat_type is required'}), 400
 
-    # Отримуємо статистику для водіїв
     result = driver_service.get_driver_statistics(stat_type)
     if 'error' in result:
         return jsonify(result), 400

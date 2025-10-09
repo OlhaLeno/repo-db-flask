@@ -3,7 +3,6 @@ from sqlalchemy.exc import OperationalError
 from dotenv import load_dotenv
 import os
 
-# Завантажити змінні з .env файлу
 load_dotenv()
 
 from __init__ import create_app
@@ -50,7 +49,6 @@ def healthz():
 
 @app.errorhandler(OperationalError)
 def handle_sql_error(error):
-    # Перевірка на конкретну помилку тригера
     if 'Inserting rows into stop is not allowed' in str(error):
         return jsonify({"error": "Inserting rows into stop is not allowed"}), 403
     elif 'Updating rows in stop is not allowed' in str(error):
@@ -58,12 +56,9 @@ def handle_sql_error(error):
     elif 'Deleting rows from stop is not allowed' in str(error):
         return jsonify({"error": "Deleting rows from stop is not allowed"}), 403
     else:
-        # Для інших помилок SQL
         return jsonify({"error": "Database error"}), 500
 
-# Для Azure App Service
 if __name__ == '__main__':
-    # Отримати порт з змінної середовища Azure або використати 8000
     port = int(os.environ.get('PORT', 8000))
     debug = os.environ.get('FLASK_ENV') == 'development'
     

@@ -22,7 +22,6 @@ class RouteService:
 
     def insert_route_entries(self):
         try:
-            # Викликаємо DAO метод для вставки записів
             self.route_dao.insert_route_entries()
             return {"message": "10 route entries inserted successfully!"}, 200
         except Exception as e:

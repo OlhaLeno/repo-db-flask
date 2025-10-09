@@ -5,25 +5,20 @@ from flasgger import Swagger
 from dotenv import load_dotenv
 from my_project.db_init import db
 
-# Завантажити змінні з .env файлу
 load_dotenv()
 
 def create_app():
     app = Flask(__name__)
 
-    # Читання змінних з .env файлу або змінних середовища Azure
     db_host = getenv("DB_HOST") or getenv("DB_HOST_AZURE")
     db_user = getenv("DB_USER") or getenv("DB_USERNAME_AZURE")
     db_password = getenv("DB_PASSWORD") or getenv("DB_PASSWORD_AZURE")
     db_name = getenv("DB_NAME")
     db_port = getenv("DB_PORT", "3306")
 
-    # Побудова рядка підключення для MySQL
     if db_host and db_user and db_password and db_name:
-        # Для Azure MySQL використовуємо SSL
         database_url = f"mysql+pymysql://{db_user}:{quote_plus(db_password)}@{db_host}:{db_port}/{db_name}?ssl_disabled=false&ssl_verify_cert=false&ssl_verify_identity=false"
     else:
-        # Fallback для локальної розробки
         database_url = getenv("DATABASE_URL", "sqlite:///default.db")
     
     app.config["SQLALCHEMY_DATABASE_URI"] = database_url
@@ -35,7 +30,6 @@ def create_app():
         "max_overflow": 0,
     }
     
-    # Генерація секретного ключа для продакшену
     secret_key = getenv("SECRET_KEY")
     if not secret_key:
         import secrets
@@ -44,7 +38,6 @@ def create_app():
     
     app.config["SECRET_KEY"] = secret_key
 
-    # Initialize extensions
     db.init_app(app)
     Swagger(app, template={
         "swagger": "2.0",

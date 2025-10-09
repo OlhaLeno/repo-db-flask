@@ -4,13 +4,13 @@ from my_project.auth.service.stop_service import StopService
 stop_service = StopService()
 
 def get_all_stops():
-    """Отримати всі зупинки
+    """Get all stops
     ---
     tags:
       - Stops
     responses:
       200:
-        description: Список усіх зупинок
+        description: List of all stops
         schema:
           type: array
           items:
@@ -29,7 +29,7 @@ def get_all_stops():
     return jsonify([stop.to_dict() for stop in stops]), 200
 
 def get_stop_by_id(stop_id):
-    """Отримати зупинку за ID
+    """Get a stop by ID
     ---
     tags:
       - Stops
@@ -38,12 +38,12 @@ def get_stop_by_id(stop_id):
         in: path
         type: integer
         required: true
-        description: ID зупинки
+        description: ID stop
     responses:
       200:
-        description: Інформація про зупинку
+        description: Information about the stop
       404:
-        description: Зупинку не знайдено
+        description: Stop not found
     """
     stop = stop_service.get_stop_by_id(stop_id)
     if stop:
@@ -51,7 +51,7 @@ def get_stop_by_id(stop_id):
     return jsonify({'message': 'Stop not found'}), 404
 
 def create_stop():
-    """Створити нову зупинку
+    """Create a new stop
     ---
     tags:
       - Stops
@@ -70,9 +70,9 @@ def create_stop():
               type: number
     responses:
       201:
-        description: Зупинку успішно створено
+        description: Stop created successfully
       400:
-        description: Невірні дані або помилка тригера
+        description: Invalid data or trigger error
     """
     data = request.json
     new_stop = stop_service.create_stop(data)
@@ -81,7 +81,7 @@ def create_stop():
     return jsonify({'message': 'stop added successfully'}), 201
 
 def update_stop(stop_id):
-    """Оновити зупинку
+    """Update a stop
     ---
     tags:
       - Stops
@@ -104,22 +104,22 @@ def update_stop(stop_id):
               type: number
     responses:
       200:
-        description: Зупинку оновлено
+        description: Stop updated successfully
       400:
-        description: Помилка тригера
+        description: Trigger error
       404:
-        description: Зупинку не знайдено
+        description: Stop not found
     """
     data = request.json
     result= stop_service.update_stop(stop_id, data)
     if isinstance(result, dict) and 'error' in result:
-        return jsonify(result), 400  # Повертаємо помилку тригера
+        return jsonify(result), 400
     if result:
         return jsonify({'message': 'stop updated successfully', 'stop': result.to_dict()}), 200
     return jsonify({'message': 'stop not found'}), 404
 
 def delete_stop(stop_id):
-    """Видалити зупинку
+    """Delete a stop
     ---
     tags:
       - Stops
@@ -130,11 +130,11 @@ def delete_stop(stop_id):
         required: true
     responses:
       200:
-        description: Зупинку видалено
+        description: Stop deleted successfully
       400:
-        description: Помилка тригера
+        description: Trigger error
       404:
-        description: Зупинку не знайдено
+        description: Stop not found
     """
     result = stop_service.delete_stop(stop_id)
     if isinstance(result, dict) and 'error' in result:

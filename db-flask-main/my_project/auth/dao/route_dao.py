@@ -35,7 +35,6 @@ class RouteDAO:
 
     def insert_route_entries(self):
         try:
-            # Викликаємо збережену процедуру через text()
             db.session.execute(text("CALL insert_route_entries()"))
             db.session.commit()
         except SQLAlchemyError as e:

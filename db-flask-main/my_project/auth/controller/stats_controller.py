@@ -5,7 +5,7 @@ aggregate_service = AggregateService()
 
 
 def get_column_stat():
-    """Отримати агрегатну статистику по колонці таблиці
+    """Get aggregate statistics for a table column
     ---
     tags:
       - Statistics
@@ -14,17 +14,17 @@ def get_column_stat():
         in: query
         type: string
         required: true
-        description: Назва таблиці
+        description: Table name
       - name: column_name
         in: query
         type: string
         required: true
-        description: Назва колонки
+        description: Column name
       - name: operation
         in: query
         type: string
         required: true
-        description: Тип операції (SUM, AVG, MAX, MIN, COUNT)
+        description: Operation type (SUM, AVG, MAX, MIN, COUNT)
         enum:
           - SUM
           - AVG
@@ -33,28 +33,25 @@ def get_column_stat():
           - COUNT
     responses:
       200:
-        description: Результат агрегатної операції
+        description: Result of the aggregate operation
         schema:
           type: object
           properties:
             result:
               type: number
       400:
-        description: Невірні параметри або помилка виконання
+        description: Invalid parameters or execution error
       500:
-        description: Помилка виконання агрегації
+        description: Error executing aggregation
     """
-    # Отримуємо параметри з запиту
     table_name = request.args.get('table_name')
     column_name = request.args.get('column_name')
     operation = request.args.get('operation')
 
-    # Перевірка на наявність всіх параметрів
     if not table_name or not column_name or not operation:
         return jsonify({"message": "Missing required parameters"}), 400
 
     try:
-        # Викликаємо сервіс для отримання статистики
         result = aggregate_service.get_column_stat(table_name, column_name, operation)
         if result is None:
             return jsonify({"message": "Error executing aggregation"}), 500

@@ -4,13 +4,13 @@ from my_project.auth.service.route_service import RouteService
 route_service = RouteService()
 
 def get_all_routes():
-    """Отримати всі маршрути
+    """Get all routes
     ---
     tags:
       - Routes
     responses:
       200:
-        description: Список усіх маршрутів
+        description: List of all routes
         schema:
           type: array
           items:
@@ -29,7 +29,7 @@ def get_all_routes():
     return jsonify([route.to_dict() for route in routes]), 200
 
 def get_route_by_id(route_id):
-    """Отримати маршрут за ID
+    """Get a route by ID
     ---
     tags:
       - Routes
@@ -38,12 +38,12 @@ def get_route_by_id(route_id):
         in: path
         type: integer
         required: true
-        description: ID маршруту
+        description: ID route
     responses:
       200:
-        description: Інформація про маршрут
+        description: Information about the route
       404:
-        description: Маршрут не знайдено
+        description: Route not found
     """
     route = route_service.get_route_by_id(route_id)
     if route:
@@ -51,7 +51,7 @@ def get_route_by_id(route_id):
     return jsonify({'message': 'Route not found'}), 404
 
 def create_route():
-    """Створити новий маршрут
+    """Create a new route
     ---
     tags:
       - Routes
@@ -70,16 +70,16 @@ def create_route():
               type: string
     responses:
       201:
-        description: Маршрут успішно створено
+        description: Route successfully created
       400:
-        description: Невірні дані
+        description: Invalid data
     """
     data = request.json
     new_route = route_service.create_route(data)
     return jsonify(new_route.to_dict()), 201
 
 def update_route(route_id):
-    """Оновити маршрут
+    """Update a route
     ---
     tags:
       - Routes
@@ -102,9 +102,9 @@ def update_route(route_id):
               type: string
     responses:
       200:
-        description: Маршрут оновлено
+        description: Route successfully updated
       404:
-        description: Маршрут не знайдено
+        description: Route not found
     """
     data = request.json
     updated_route = route_service.update_route(route_id, data)
@@ -113,7 +113,7 @@ def update_route(route_id):
     return jsonify({'message': 'Route not found'}), 404
 
 def delete_route(route_id):
-    """Видалити маршрут
+    """Delete a route
     ---
     tags:
       - Routes
@@ -124,9 +124,9 @@ def delete_route(route_id):
         required: true
     responses:
       200:
-        description: Маршрут видалено
+        description: Route deleted successfully
       404:
-        description: Маршрут не знайдено
+        description: Route not found
     """
     success = route_service.delete_route(route_id)
     if success:
@@ -134,7 +134,7 @@ def delete_route(route_id):
     return jsonify({'message': 'Route not found'}), 404
 
 def insert_route_entries():
-    """Додати записи до маршруту
+    """Insert entries into a route
     ---
     tags:
       - Routes
@@ -142,12 +142,12 @@ def insert_route_entries():
       - name: body
         in: body
         required: true
-        description: Дані для додавання записів до маршруту
+        description: Data for adding entries to the route
     responses:
       200:
-        description: Записи успішно додано
+        description: Entries successfully added
       400:
-        description: Помилка при додаванні записів
+        description: Error adding entries
     """
     response, status_code = route_service.insert_route_entries()
     return jsonify(response), status_code

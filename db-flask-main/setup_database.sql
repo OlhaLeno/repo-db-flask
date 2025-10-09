@@ -1,7 +1,5 @@
--- SQL скрипт для створення таблиць Bus Management System
--- Виконайте цей скрипт в Azure MySQL
 USE bus;
--- Таблиця маршрутів
+-- Route table
 CREATE TABLE IF NOT EXISTS route (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -10,7 +8,7 @@ CREATE TABLE IF NOT EXISTS route (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
--- Таблиця зупинок
+-- Stop table
 CREATE TABLE IF NOT EXISTS stop (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -19,7 +17,7 @@ CREATE TABLE IF NOT EXISTS stop (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
--- Таблиця водіїв
+-- Driver table
 CREATE TABLE IF NOT EXISTS driver (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -28,7 +26,7 @@ CREATE TABLE IF NOT EXISTS driver (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
--- Таблиця автобусів
+-- Bus table
 CREATE TABLE IF NOT EXISTS bus (
     id INT AUTO_INCREMENT PRIMARY KEY,
     license_plate VARCHAR(20) UNIQUE NOT NULL,
@@ -40,7 +38,7 @@ CREATE TABLE IF NOT EXISTS bus (
     FOREIGN KEY (route_id) REFERENCES route(id) ON DELETE
     SET NULL
 );
--- Таблиця зупинок маршрутів
+-- Route-Stop table
 CREATE TABLE IF NOT EXISTS route_stop (
     id INT AUTO_INCREMENT PRIMARY KEY,
     route_id INT NOT NULL,
@@ -52,7 +50,7 @@ CREATE TABLE IF NOT EXISTS route_stop (
     FOREIGN KEY (stop_id) REFERENCES stop(id) ON DELETE CASCADE,
     UNIQUE KEY unique_route_stop (route_id, stop_id)
 );
--- Таблиця оглядів автобусів
+-- Bus inspections table
 CREATE TABLE IF NOT EXISTS bus_inspection (
     id INT AUTO_INCREMENT PRIMARY KEY,
     bus_id INT NOT NULL,
@@ -63,27 +61,27 @@ CREATE TABLE IF NOT EXISTS bus_inspection (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (bus_id) REFERENCES bus(id) ON DELETE CASCADE
 );
--- Створення індексів для покращення продуктивності
+-- Creating indexes to improve performance
 CREATE INDEX idx_bus_route_id ON bus(route_id);
 CREATE INDEX idx_route_stop_route_id ON route_stop(route_id);
 CREATE INDEX idx_route_stop_stop_id ON route_stop(stop_id);
 CREATE INDEX idx_bus_inspection_bus_id ON bus_inspection(bus_id);
 CREATE INDEX idx_bus_inspection_date ON bus_inspection(inspection_date);
--- Вставка тестових даних
+-- Inserting test data
 INSERT INTO route (name, start_point, end_point)
-VALUES ('Маршрут 1', 'Центр міста', 'Залізничний вокзал'),
-    ('Маршрут 2', 'Аеропорт', 'Центр міста'),
-    ('Маршрут 3', 'Університет', 'Торговий центр');
+VALUES ('Route 1', 'City center', 'Train station'),
+    ('Route 2', 'Airport', 'City center'),
+    ('Route 3', 'University', 'Shopping mall');
 INSERT INTO stop (name, latitude, longitude)
-VALUES ('Центральна площа', 50.4501, 30.5234),
-    ('Залізничний вокзал', 50.4408, 30.4895),
-    ('Аеропорт', 50.4019, 30.4495),
-    ('Університет', 50.4501, 30.5234),
-    ('Торговий центр', 50.4501, 30.5234);
+VALUES ('Central Square', 50.4501, 30.5234),
+    ('Train Station', 50.4408, 30.4895),
+    ('Airport', 50.4019, 30.4495),
+    ('University', 50.4501, 30.5234),
+    ('Shopping Mall', 50.4501, 30.5234);
 INSERT INTO driver (name, license_number, phone)
-VALUES ('Іван Петренко', 'DL123456', '+380501234567'),
-    ('Марія Коваленко', 'DL789012', '+380507654321'),
-    ('Олексій Сидоренко', 'DL345678', '+380509876543');
+VALUES ('Ivan Petrenko', 'DL123456', '+380501234567'),
+    ('Maria Kovalenko', 'DL789012', '+380507654321'),
+    ('Olexiy Sydorenko', 'DL345678', '+380509876543');
 INSERT INTO bus (license_plate, model, capacity, route_id)
 VALUES ('AA1234BB', 'Mercedes Sprinter', 25, 1),
     ('CC5678DD', 'Volkswagen Crafter', 30, 1),
@@ -111,24 +109,24 @@ VALUES (
         1,
         '2024-01-15',
         'PASS',
-        'Всі системи працюють нормально'
+        'All systems are functioning normally'
     ),
     (
         2,
         '2024-01-20',
         'PASS',
-        'Незначні пошкодження кузова'
+        'Minor body damage'
     ),
-    (3, '2024-01-25', 'FAIL', 'Потрібен ремонт гальм'),
+    (3, '2024-01-25', 'FAIL', 'Brake repair needed'),
     (
         4,
         '2024-01-30',
         'PASS',
-        'Технічний стан відмінний'
+        'Technical condition is excellent'
     );
--- Перевірка створених таблиць
+-- Checking the created tables
 SHOW TABLES;
--- Перевірка даних
+-- Checking data
 SELECT 'Routes:' as table_name,
     COUNT(*) as count
 FROM route
@@ -152,4 +150,4 @@ UNION ALL
 SELECT 'Inspections:',
     COUNT(*)
 FROM bus_inspection;
-SELECT '✅ Database setup completed successfully!' as status;
+SELECT 'Database setup completed successfully!' as status;

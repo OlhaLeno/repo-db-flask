@@ -23,5 +23,5 @@ class RouteStopService:
         return self.route_stop_dao.delete(route_stop_id)
 
     def insert_route_stop(self, route_id, stop_id, price_from_previous):
-        """Інтерфейс для вставки RouteStop через DAO"""
+        """Interface for inserting RouteStop via DAO"""
         return self.route_stop_dao.insert_route_stop(route_id, stop_id, price_from_previous)

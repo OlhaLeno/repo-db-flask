@@ -11,7 +11,6 @@ class BusInspection(db.Model):
     inspection_result = db.Column(db.String(100), nullable=False)
     remarks = db.Column(db.String(200), nullable=True)
 
-    # Встановлюємо відношення з таблицею Bus
     bus = db.relationship('Bus', back_populates='inspections')
 
     def to_dict(self):

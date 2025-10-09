@@ -4,13 +4,13 @@ from my_project.auth.service.route_stop_service import RouteStopService
 route_stop_service = RouteStopService()
 
 def get_all_route_stops():
-    """Отримати всі зупинки маршрутів
+    """Get all route stops
     ---
     tags:
       - Route Stops
     responses:
       200:
-        description: Список усіх зупинок маршрутів
+        description: List of all route stops
         schema:
           type: array
           items:
@@ -29,7 +29,7 @@ def get_all_route_stops():
     return jsonify([route_stop.to_dict() for route_stop in route_stops]), 200
 
 def get_route_stops_by_route(route_id):
-    """Отримати зупинки за маршрутом
+    """Get stops by route
     ---
     tags:
       - Route Stops
@@ -38,16 +38,16 @@ def get_route_stops_by_route(route_id):
         in: path
         type: integer
         required: true
-        description: ID маршруту
+        description: ID route
     responses:
       200:
-        description: Список зупинок маршруту
+        description: List of stops for the route
     """
     route_stops = route_stop_service.get_route_stops_by_route(route_id)
     return jsonify([rs.stop.to_dict() for rs in route_stops]), 200
 
 def get_route_stop_by_id(route_stop_id):
-    """Отримати зупинку маршруту за ID
+    """Get route stop by ID
     ---
     tags:
       - Route Stops
@@ -56,12 +56,12 @@ def get_route_stop_by_id(route_stop_id):
         in: path
         type: integer
         required: true
-        description: ID зупинки маршруту
+        description: ID route stop
     responses:
       200:
-        description: Інформація про зупинку маршруту
+        description: Information about the route stop
       404:
-        description: Зупинку маршруту не знайдено
+        description: Route stop not found
     """
     route_stop = route_stop_service.get_route_stop_by_id(route_stop_id)
     if route_stop:
@@ -69,7 +69,7 @@ def get_route_stop_by_id(route_stop_id):
     return jsonify({'message': 'Route Stop not found'}), 404
 
 def create_route_stop():
-    """Створити зупинку маршруту
+    """Create a route stop
     ---
     tags:
       - Route Stops
@@ -88,16 +88,16 @@ def create_route_stop():
               type: number
     responses:
       201:
-        description: Зупинку маршруту створено
+        description: Route stop created successfully
       400:
-        description: Невірні дані
+        description: Invalid data
     """
     data = request.json
     new_route_stop = route_stop_service.create_route_stop(data)
     return jsonify(new_route_stop.to_dict()), 201
 
 def update_route_stop(route_stop_id):
-    """Оновити зупинку маршруту
+    """Update a route stop
     ---
     tags:
       - Route Stops
@@ -120,9 +120,9 @@ def update_route_stop(route_stop_id):
               type: number
     responses:
       200:
-        description: Зупинку маршруту оновлено
+        description: Route stop updated successfully
       404:
-        description: Зупинку маршруту не знайдено
+        description: Route stop not found
     """
     data = request.json
     updated_route_stop = route_stop_service.update_route_stop(route_stop_id, data)
@@ -131,7 +131,7 @@ def update_route_stop(route_stop_id):
     return jsonify({'message': 'Route Stop not found'}), 404
 
 def delete_route_stop(route_stop_id):
-    """Видалити зупинку маршруту
+    """Delete a route stop
     ---
     tags:
       - Route Stops
@@ -142,9 +142,9 @@ def delete_route_stop(route_stop_id):
         required: true
     responses:
       200:
-        description: Зупинку маршруту видалено
+        description: Route stop deleted successfully
       404:
-        description: Зупинку маршруту не знайдено
+        description: Route stop not found
     """
     success = route_stop_service.delete_route_stop(route_stop_id)
     if success:
@@ -153,7 +153,7 @@ def delete_route_stop(route_stop_id):
 
 
 def insert_route_stop():
-    """Вставити зупинку до маршруту (збережена процедура)
+    """Insert a stop into a route (stored procedure)
     ---
     tags:
       - Route Stops
@@ -176,26 +176,21 @@ def insert_route_stop():
             - price_from_previous
     responses:
       200:
-        description: Зупинку успішно додано до маршруту
+        description: Route stop successfully added to the route
       400:
-        description: Відсутні обов'язкові параметри
+        description: Missing required parameters
     """
-    # Отримуємо дані з запиту
     data = request.get_json()
 
-    # Перевіряємо наявність всіх необхідних параметрів
     route_id = data.get('route_id')
     stop_id = data.get('stop_id')
     price_from_previous = data.get('price_from_previous')
 
-    # Якщо відсутній хоча б один параметр, повертаємо помилку
     if not route_id or not stop_id or price_from_previous is None:
         return jsonify({"error": "Missing required parameters"}), 400
 
-    # Викликаємо сервіс для вставки зупинки маршруту
     result, status_code = route_stop_service.insert_route_stop(
         route_id, stop_id, price_from_previous
     )
 
-    # Повертаємо результат
     return jsonify(result), status_code

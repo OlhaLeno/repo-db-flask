@@ -5,13 +5,13 @@ from my_project.auth.service.bus_inspection_service import BusInspectionService
 bus_inspection_service = BusInspectionService()
 
 def get_all_inspections():
-    """Отримати всі огляди автобусів
+    """Get all bus inspections
     ---
     tags:
       - Bus Inspections
     responses:
       200:
-        description: Список усіх оглядів автобусів
+        description: List of all bus inspections
         schema:
           type: array
           items:
@@ -33,7 +33,7 @@ def get_all_inspections():
     return jsonify([inspection.to_dict() for inspection in inspections]), 200
 
 def get_inspection_by_id(inspection_id):
-    """Отримати огляд автобуса за ID
+    """Get a bus inspection by ID
     ---
     tags:
       - Bus Inspections
@@ -42,12 +42,12 @@ def get_inspection_by_id(inspection_id):
         in: path
         type: integer
         required: true
-        description: ID огляду
+        description: ID inspection
     responses:
       200:
-        description: Інформація про огляд
+        description: Information about the inspection
       404:
-        description: Огляд не знайдено
+        description: Inspection not found
     """
     inspection = bus_inspection_service.get_inspection_by_id(inspection_id)
     if inspection:
@@ -55,7 +55,7 @@ def get_inspection_by_id(inspection_id):
     return jsonify({'message': 'Inspection not found'}), 404
 
 def update_bus_inspection(inspection_id):
-    """Оновити огляд автобуса
+    """Update a bus inspection
     ---
     tags:
       - Bus Inspections
@@ -81,9 +81,9 @@ def update_bus_inspection(inspection_id):
               type: string
     responses:
       200:
-        description: Огляд оновлено
+        description: Inspection updated successfully
       404:
-        description: Огляд не знайдено
+        description: Inspection not found
     """
     data = request.json
     updated_inspection = bus_inspection_service.update_bus_inspection(inspection_id, data)
@@ -92,7 +92,7 @@ def update_bus_inspection(inspection_id):
     return jsonify({'message': 'Inspection not found'}), 404
 
 def delete_bus_inspection(inspection_id):
-    """Видалити огляд автобуса
+    """Delete a bus inspection
     ---
     tags:
       - Bus Inspections
@@ -103,9 +103,9 @@ def delete_bus_inspection(inspection_id):
         required: true
     responses:
       200:
-        description: Огляд видалено
+        description: Inspection deleted successfully
       404:
-        description: Огляд не знайдено
+        description: Inspection not found
     """
     success = bus_inspection_service.delete_bus_inspection(inspection_id)
     if success:
@@ -113,7 +113,7 @@ def delete_bus_inspection(inspection_id):
     return jsonify({'message': 'Inspection not found'}), 404
 
 def get_inspections_by_bus_id(bus_id):
-    """Отримати огляди за ID автобуса
+    """Get inspections by bus ID
     ---
     tags:
       - Bus Inspections
@@ -122,17 +122,17 @@ def get_inspections_by_bus_id(bus_id):
         in: path
         type: integer
         required: true
-        description: ID автобуса
+        description: ID bus
     responses:
       200:
-        description: Список оглядів автобуса
+        description: List of bus inspections
     """
     inspections = bus_inspection_service.get_inspections_by_bus_id(bus_id)
     return jsonify([inspection.to_dict() for inspection in inspections]), 200
 
 
 def create_bus_inspection():
-    """Створити новий огляд автобуса
+    """Create a new bus inspection
     ---
     tags:
       - Bus Inspections
@@ -158,15 +158,14 @@ def create_bus_inspection():
             - inspection_result
     responses:
       201:
-        description: Огляд автобуса створено
+        description: Bus inspection created successfully
       400:
-        description: Невірні дані або відсутні обов'язкові поля
+        description: Invalid data or missing required fields
       500:
-        description: Помилка сервера
+        description: Server error
     """
     data = request.get_json()
 
-    # Отримуємо дані з запиту
     bus_id = data.get('bus_id')
     inspection_date = data.get('inspection_date')
     inspection_result = data.get('inspection_result')

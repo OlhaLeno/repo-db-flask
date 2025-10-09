@@ -4,13 +4,13 @@ from my_project.auth.service.bus_service import BusService
 bus_service = BusService()
 
 def get_all_buses():
-    """Отримати всі автобуси
+    """Get all buses
     ---
     tags:
       - Buses
     responses:
       200:
-        description: Список усіх автобусів
+        description: List of all buses
         schema:
           type: array
           items:
@@ -29,7 +29,7 @@ def get_all_buses():
     return jsonify([bus.to_dict() for bus in buses]), 200
 
 def get_bus_by_id(bus_id):
-    """Отримати автобус за ID
+    """Get a bus by ID
     ---
     tags:
       - Buses
@@ -38,12 +38,12 @@ def get_bus_by_id(bus_id):
         in: path
         type: integer
         required: true
-        description: ID автобуса
+        description: ID bus
     responses:
       200:
-        description: Інформація про автобус
+        description: Information about the bus
       404:
-        description: Автобус не знайдено
+        description: Bus not found
     """
     bus = bus_service.get_bus_by_id(bus_id)
     if bus:
@@ -51,7 +51,7 @@ def get_bus_by_id(bus_id):
     return jsonify({'message': 'Bus not found'}), 404
 
 def create_bus():
-    """Створити новий автобус
+    """Create a new bus
     ---
     tags:
       - Buses
@@ -72,16 +72,16 @@ def create_bus():
               type: integer
     responses:
       201:
-        description: Автобус успішно створено
+        description: Bus created successfully
       400:
-        description: Невірні дані
+        description: Invalid data
     """
     data = request.json
     new_bus = bus_service.create_bus(data)
     return jsonify(new_bus.to_dict()), 201
 
 def update_bus(bus_id):
-    """Оновити автобус
+    """Update a bus
     ---
     tags:
       - Buses
@@ -106,9 +106,9 @@ def update_bus(bus_id):
               type: integer
     responses:
       200:
-        description: Автобус оновлено
+        description: Bus updated successfully
       404:
-        description: Автобус не знайдено
+        description: Bus not found
     """
     data = request.json
     updated_bus = bus_service.update_bus(bus_id, data)
@@ -117,7 +117,7 @@ def update_bus(bus_id):
     return jsonify({'message': 'Bus not found'}), 404
 
 def delete_bus(bus_id):
-    """Видалити автобус
+    """Delete a bus
     ---
     tags:
       - Buses
@@ -128,9 +128,9 @@ def delete_bus(bus_id):
         required: true
     responses:
       200:
-        description: Автобус видалено
+        description: Bus deleted successfully
       404:
-        description: Автобус не знайдено
+        description: Bus not found
     """
     success = bus_service.delete_bus(bus_id)
     if success:
@@ -138,7 +138,7 @@ def delete_bus(bus_id):
     return jsonify({'message': 'Bus not found'}), 404
 
 def get_buses_by_route(route_id):
-    """Отримати автобуси за маршрутом
+    """Get buses by route
     ---
     tags:
       - Buses
@@ -147,30 +147,28 @@ def get_buses_by_route(route_id):
         in: path
         type: integer
         required: true
-        description: ID маршруту
+        description: ID route
     responses:
       200:
-        description: Список автобусів на маршруті
+        description: List of buses on the route
     """
     buses = bus_service.get_buses_by_route(route_id)
     return jsonify([bus.to_dict() for bus in buses]), 200
 
 def create_databases():
-    """Створити структуру бази даних
+    """Create database structure
     ---
     tags:
       - Database
     responses:
       200:
-        description: База даних створена
+        description: Database created successfully
       500:
-        description: Помилка створення бази даних
+        description: Error creating database
     """
     response = bus_service.create_databases()
 
-    # Перевіряємо, чи є 'response' словником і чи містить він ключ 'error'
     if isinstance(response, dict) and 'error' in response:
         return jsonify(response), 500
 
-    # Якщо все в порядку, повертаємо успішну відповідь
     return jsonify(response), 200
