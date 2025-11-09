@@ -3,6 +3,8 @@ from sqlalchemy.exc import OperationalError
 from dotenv import load_dotenv
 import os
 
+from flask_cors import CORS
+
 load_dotenv()
 
 from __init__ import create_app
@@ -16,6 +18,10 @@ from my_project.auth.route.bus_inspection_route import inspection_bp
 from my_project.auth.route.stats_route import stats_bp
 
 app = create_app()
+
+CORS(app) 
+
+from my_project.auth.models import Bus, Driver, Route, RouteStop, Stop, BusInspection
 
 app.register_blueprint(bus_bp)
 app.register_blueprint(driver_bp)
@@ -61,5 +67,5 @@ def handle_sql_error(error):
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8000))
     debug = os.environ.get('FLASK_ENV') == 'development'
-    
+
     app.run(host='0.0.0.0', port=port, debug=debug)

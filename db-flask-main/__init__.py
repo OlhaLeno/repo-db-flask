@@ -2,6 +2,7 @@ from flask import Flask
 from os import getenv
 from urllib.parse import quote_plus
 from flasgger import Swagger
+from flask_cors import CORS
 from dotenv import load_dotenv
 from my_project.db_init import db
 
@@ -9,6 +10,15 @@ load_dotenv()
 
 def create_app():
     app = Flask(__name__)
+    
+    # Налаштування CORS для Swagger UI
+    CORS(app, resources={
+        r"/*": {
+            "origins": "*",
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"]
+        }
+    })
 
     db_host = getenv("DB_HOST") or getenv("DB_HOST_AZURE")
     db_user = getenv("DB_USER") or getenv("DB_USERNAME_AZURE")
@@ -39,15 +49,17 @@ def create_app():
     app.config["SECRET_KEY"] = secret_key
 
     db.init_app(app)
-    Swagger(app, template={
+    
+    # Налаштування Swagger
+    swagger_template = {
         "swagger": "2.0",
         "info": {
             "title": "Bus Management API",
-            "description": "Auto-generated docs for available REST endpoints",
             "version": "1.0.0",
         },
-        "host": getenv("API_HOST", "localhost:5000"),
-        "schemes": ["http", "https"],
-    })
+        "schemes": ["https"],
+    }
+    
+    Swagger(app, template=swagger_template)
 
     return app

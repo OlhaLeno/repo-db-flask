@@ -3,4 +3,5 @@ from .driver import Driver
 from .route import Route
 from .route_stop import RouteStop
 from .stop import Stop
+from .bus_inspection import BusInspection
 

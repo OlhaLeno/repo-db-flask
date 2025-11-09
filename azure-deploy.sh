@@ -40,7 +40,7 @@ IMAGE_TAG="latest"
 
 # Database (must already exist in Azure)
 DB_HOST="db-lab2.mysql.database.azure.com"
-DB_USER="root"
+DB_USER="Olha"
 DB_PASSWORD="Jksxrf189"
 DB_NAME="db-lab2"
 # ===============================================

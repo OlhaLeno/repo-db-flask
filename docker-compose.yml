@@ -1,21 +1,19 @@
 version: '3.8'
 
 services:
-  # 1. Сервіс вашого Flask API
   flask-app:
-    build: .  # Каже Docker'у шукати 'Dockerfile' у цій же папці
+    build: .
     ports:
-      - "5000:5000" # Прокидає порт 5000 з контейнера на ваш комп'ютер
+      - "5000:5000"
     environment:
-      # Передає змінні з .env файлу всередину контейнера
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
-      - DB_HOST=mysql # Назва сервісу mysql нижче
+      - DB_HOST=mysql
     depends_on:
-      - mysql # Запустити тільки після старту mysql
+      mysql:
+        condition: service_healthy 
 
-  # 2. Сервіс бази даних MySQL
   mysql:
     image: mysql:8.0
     environment:
@@ -23,6 +21,11 @@ services:
       MYSQL_DATABASE: ${DB_NAME}
     volumes:
       - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}"]
+      interval: 5s
+      timeout: 2s
+      retries: 20
 
 volumes:
   mysql-data:
