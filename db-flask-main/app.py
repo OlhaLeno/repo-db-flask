@@ -1,11 +1,6 @@
-from flask import Flask, jsonify, redirect, url_for
+from flask import Flask, jsonify, redirect, url_for, request
 from sqlalchemy.exc import OperationalError
-from dotenv import load_dotenv
 import os
-
-from flask_cors import CORS
-
-load_dotenv()
 
 from __init__ import create_app
 
@@ -19,7 +14,12 @@ from my_project.auth.route.stats_route import stats_bp
 
 app = create_app()
 
-CORS(app) 
+# Force HTTPS in production
+@app.before_request
+def force_https():
+    if request.headers.get('X-Forwarded-Proto') == 'http':
+        url = request.url.replace('http://', 'https://', 1)
+        return redirect(url, code=301)
 
 from my_project.auth.models import Bus, Driver, Route, RouteStop, Stop, BusInspection
 
@@ -33,7 +33,7 @@ app.register_blueprint(stats_bp)
 
 @app.route("/")
 def root():
-    return redirect("/apidocs")
+    return redirect("/apidocs/", code=302)
 
 @app.route("/healthz")
 def healthz():

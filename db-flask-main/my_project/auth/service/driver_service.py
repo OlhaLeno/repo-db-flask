@@ -1,4 +1,3 @@
-# my_project/auth/service/driver_service.py
 from my_project.auth.dao.driver_dao import DriverDAO
 
 class DriverService:
@@ -6,30 +5,25 @@ class DriverService:
         self.driver_dao = DriverDAO()
 
     def create_driver(self, data):
-        """Creating a new driver."""
         try:
             return self.driver_dao.create(data)
         except Exception as e:
             return {"error": str(e)}
 
     def get_all_drivers(self):
-        """Getting all drivers."""
         return self.driver_dao.get_all()
 
     def get_driver_by_id(self, driver_id):
-        """Getting a driver by ID."""
         return self.driver_dao.get_by_id(driver_id)
 
     def update_driver(self, driver_id, data):
-        """Updating driver information."""
         return self.driver_dao.update(driver_id, data)
 
     def delete_driver(self, driver_id):
-        """Deleting a driver."""
         return self.driver_dao.delete(driver_id)
 
     def get_driver_statistics(self, stat_type: str):
         result = self.driver_dao.get_driver_stats(stat_type)
         if isinstance(result, dict) and 'error' in result:
-            return result  # If an error occurred, return it
+            return result
         return {'stat_type': stat_type, 'value': result}

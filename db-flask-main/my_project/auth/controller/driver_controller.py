@@ -26,6 +26,13 @@ def get_all_drivers():
                 type: string
     """
     drivers = driver_service.get_all_drivers()
+    
+    if isinstance(drivers, dict) and 'error' in drivers:
+        return jsonify(drivers), 500
+    
+    if not isinstance(drivers, list):
+        return jsonify({"error": f"Unexpected response type: {type(drivers).__name__}"}), 500
+    
     return jsonify([driver.to_dict() for driver in drivers]), 200
 
 def get_driver_by_id(driver_id):

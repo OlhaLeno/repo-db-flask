@@ -1,0 +1,57 @@
+# Environment files
+.env
+.env.*
+*.env
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Git
+.git/
+.github/
+.gitignore
+.gitattributes
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs and temporary files
+*.log
+*.pid
+*.seed
+*.pid.lock
+
+# Tests
+tests/
+test/
+*.test.py
+load_test.py
+run_load_test.sh
+
+# Documentation
+docs/
+*.md
+
+# Docker files
+docker-compose.yml
+Dockerfile.dev
+.dockerignore
+
+# Deployment scripts
+scripts/
+azure-deploy.sh
+*.sh
+
+# SQLite databases
+*.db
+*.sqlite
+*.sqlite3
+

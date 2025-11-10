@@ -2,13 +2,11 @@
 
 # Script to deploy to Azure Container Apps with auto-scaling
 
-# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+NC='\033[0m' 
 
-# Function for logging
 log() {
     echo -e "${GREEN}[INFO]${NC} $1"
 }
@@ -22,7 +20,6 @@ warning() {
     echo -e "${YELLOW}[WARNING]${NC} $1"
 }
 
-# --- Check if Azure CLI is installed ---
 if ! command -v az &> /dev/null; then
     error "Azure CLI is not installed. Please install it: https://docs.microsoft.com/cli/azure/install-azure-cli"
 fi
@@ -41,7 +38,7 @@ IMAGE_TAG="latest"
 # Database (must already exist in Azure)
 DB_HOST="db-lab2.mysql.database.azure.com"
 DB_USER="Olha"
-DB_PASSWORD="Jksxrf189"
+DB_PASSWORD="Jksxrf189" # <--- Я бачу, ви оновили пароль
 DB_NAME="db-lab2"
 # ===============================================
 
@@ -97,11 +94,17 @@ fi
 # 6. Build Docker image (for linux/amd64 platform used by Azure)
 log "Building Docker image for linux/amd64 platform..."
 # This uses the 'Dockerfile' in the current directory
-docker buildx build --platform linux/amd64 -t ${ACR_NAME}.azurecr.io/${IMAGE_NAME}:${IMAGE_TAG} .
+# =================================================================
+# === ОСЬ ВИПРАВЛЕННЯ: Додано --no-cache для ігнорування кешу ===
+# =================================================================
+docker buildx build --platform linux/amd64 --no-cache -t ${ACR_NAME}.azurecr.io/${IMAGE_NAME}:${IMAGE_TAG} .
 
 if [ $? -ne 0 ]; then
     warning "Buildx failed, trying regular 'docker build'..."
-    docker build --platform linux/amd64 -t ${ACR_NAME}.azurecr.io/${IMAGE_NAME}:${IMAGE_TAG} .
+    # =================================================================
+    # === ОСЬ ВИПРАВЛЕННЯ: Додано --no-cache для ігнорування кешу ===
+    # =================================================================
+    docker build --platform linux/amd64 --no-cache -t ${ACR_NAME}.azurecr.io/${IMAGE_NAME}:${IMAGE_TAG} .
     
     if [ $? -ne 0 ]; then
         error "Failed to build Docker image. Check your Dockerfile."
@@ -226,7 +229,7 @@ if [ -z "$APP_URL" ]; then
 fi
 
 log "=========================================================="
-log "                DEPLOYMENT COMPLETED!                     "
+log "                  DEPLOYMENT COMPLETED!                   "
 log "=========================================================="
 log "Your Application URL: https://$APP_URL"
 log "Swagger Documentation: https://$APP_URL/apidocs/"
@@ -242,6 +245,5 @@ log "  - CPU rule: scale up @ >70% utilization"
 log "  - Memory rule: scale up @ >80% utilization"
 log "=========================================================="
 
-# Save the URL to a file for easy access
 echo "APP_URL=https://$APP_URL" > .env.azure
 log "Application URL saved to .env.azure file."

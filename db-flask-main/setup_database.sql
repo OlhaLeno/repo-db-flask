@@ -1,4 +1,4 @@
-USE bus;
+USE `db-lab2`;
 -- Route table
 CREATE TABLE IF NOT EXISTS route (
     id INT AUTO_INCREMENT PRIMARY KEY,

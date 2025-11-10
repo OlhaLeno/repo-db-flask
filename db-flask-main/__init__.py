@@ -1,17 +1,24 @@
-from flask import Flask
+from flask import Flask, jsonify
 from os import getenv
 from urllib.parse import quote_plus
 from flasgger import Swagger
 from flask_cors import CORS
-from dotenv import load_dotenv
 from my_project.db_init import db
+import logging
 
-load_dotenv()
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def create_app():
     app = Flask(__name__)
     
-    # Налаштування CORS для Swagger UI
+    # Load .env for local development
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+    except:
+        pass
+    
     CORS(app, resources={
         r"/*": {
             "origins": "*",
@@ -25,11 +32,19 @@ def create_app():
     db_password = getenv("DB_PASSWORD") or getenv("DB_PASSWORD_AZURE")
     db_name = getenv("DB_NAME")
     db_port = getenv("DB_PORT", "3306")
+    
+    logger.info(f"DB Configuration: host={db_host}, user={db_user}, db={db_name}, port={db_port}")
 
-    if db_host and db_user and db_password and db_name:
-        database_url = f"mysql+pymysql://{db_user}:{quote_plus(db_password)}@{db_host}:{db_port}/{db_name}?ssl_disabled=false&ssl_verify_cert=false&ssl_verify_identity=false"
+    if db_host == 'mysql':
+        database_url = f"mysql+pymysql://{db_user}:{quote_plus(db_password)}@{db_host}:{db_port}/{db_name}"
+        ssl_args = {}
+    elif db_host:
+        # Azure MySQL requires SSL
+        database_url = f"mysql+pymysql://{db_user}:{quote_plus(db_password)}@{db_host}:{db_port}/{db_name}"
+        ssl_args = {"ssl": {"ssl_mode": "REQUIRED"}}
     else:
         database_url = getenv("DATABASE_URL", "sqlite:///default.db")
+        ssl_args = {}
     
     app.config["SQLALCHEMY_DATABASE_URI"] = database_url
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -38,28 +53,35 @@ def create_app():
         "pool_recycle": 300,
         "pool_timeout": 20,
         "max_overflow": 0,
+        "connect_args": ssl_args
     }
     
     secret_key = getenv("SECRET_KEY")
     if not secret_key:
         import secrets
         secret_key = secrets.token_hex(32)
-        print("WARNING: SECRET_KEY not set, using generated key. Set SECRET_KEY environment variable for production!")
     
     app.config["SECRET_KEY"] = secret_key
-
     db.init_app(app)
     
-    # Налаштування Swagger
     swagger_template = {
         "swagger": "2.0",
         "info": {
             "title": "Bus Management API",
             "version": "1.0.0",
+            "description": "REST API for Bus Management System"
         },
-        "schemes": ["https"],
+        "schemes": ["https", "http"],
+        "host": getenv("SWAGGER_HOST", ""),
     }
     
-    Swagger(app, template=swagger_template)
-
+    swagger_config = {
+        "headers": [],
+        "specs": [{"endpoint": 'apispec', "route": '/apispec.json'}],
+        "static_url_path": "/flasgger_static",
+        "swagger_ui": True,
+        "specs_route": "/apidocs/"
+    }
+    
+    Swagger(app, template=swagger_template, config=swagger_config)
     return app
