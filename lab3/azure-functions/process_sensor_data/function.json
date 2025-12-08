@@ -1,0 +1,14 @@
+{
+  "scriptFile": "__init__.py",
+  "bindings": [
+    {
+      "name": "msg",
+      "type": "serviceBusTrigger",
+      "direction": "in",
+      "queueName": "iot-sensor-data",
+      "connection": "ServiceBusConnection",
+      "isSessionsEnabled": false
+    }
+  ]
+}
+

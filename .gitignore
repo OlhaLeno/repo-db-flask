@@ -1,0 +1,42 @@
+# Markdown documentation files
+lab3/*.md
+lab3/**/*.md
+
+# Test files
+lab3/test_system.py
+lab3/SYSTEM_STATUS.md
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Azure Functions
+lab3/azure-functions/.python_packages/
+lab3/azure-functions/bin/
+lab3/azure-functions/obj/
+lab3/azure-functions/.vscode/
+
+# Local settings (may contain secrets)
+lab3/azure-functions/local.settings.json
+
+# Logs
+*.log
+

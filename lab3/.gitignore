@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Azure Functions
+azure-functions/azure/
+azure-functions/werkzeug/
+azure-functions/markupsafe/
+azure-functions/pymssql/
+azure-functions/pyodbc.*
+azure-functions/*dist-info/
+azure-functions/.python_packages/
+azure-functions/bin/
+azure-functions/obj/
+
+# Local settings (може містити секрети)
+local.settings.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Sensitive data
+config.json
+*.env
+
