@@ -117,10 +117,9 @@ def main(msg: func.ServiceBusMessage) -> None:
         
         try:
             # Insert data (pymssql uses %s instead of ?)
-            cursor.execute("""
-                INSERT INTO sensor_data (sensor_id, sensor_type, value, latitude, longitude, timestamp)
-                VALUES (%s, %s, %s, %s, %s, %s)
-            """, 
+            # Parameters must be passed as a tuple/list, not as separate arguments
+            query = "INSERT INTO sensor_data (sensor_id, sensor_type, value, latitude, longitude, timestamp) VALUES (%s, %s, %s, %s, %s, %s)"
+            params = (
                 data['sensor_id'], 
                 data['sensor_type'], 
                 float(data['value']),
@@ -128,6 +127,7 @@ def main(msg: func.ServiceBusMessage) -> None:
                 float(data['longitude']), 
                 data['timestamp']
             )
+            cursor.execute(query, params)
             
             conn.commit()
             logging.info(

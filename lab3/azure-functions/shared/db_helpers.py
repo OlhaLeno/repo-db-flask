@@ -256,7 +256,8 @@ def get_pending_dlq_errors(limit: int = 100,
             
             query += " ORDER BY dead_lettered_time ASC"
             
-            cursor.execute(query, *params)
+            # pymssql requires parameters as tuple/list, not unpacked
+            cursor.execute(query, tuple(params))
             errors = cursor.fetchall()
             
             return errors

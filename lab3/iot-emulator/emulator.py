@@ -1,13 +1,19 @@
 import json
 import time
 import random
+import os
 from datetime import datetime, timezone
 from azure.servicebus import ServiceBusClient, ServiceBusMessage
 import threading
 
 class SensorEmulator:
-    def __init__(self, config_path='config.json'):
-        with open(config_path, 'r') as f:
+    def __init__(self, config_path=None):
+        if config_path is None:
+            # Get the directory where this script is located
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            config_path = os.path.join(script_dir, 'config.json')
+        
+        with open(config_path, 'r', encoding='utf-8') as f:
             self.config = json.load(f)
         
         self.connection_string = self.config['service_bus']['connection_string']

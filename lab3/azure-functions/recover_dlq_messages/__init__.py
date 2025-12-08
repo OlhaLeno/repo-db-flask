@@ -169,7 +169,8 @@ def get_errors_for_recovery(error_id=None, error_type=None, sensor_id=None,
             
             query += " ORDER BY dead_lettered_time ASC"
             
-            cursor.execute(query, *params)
+            # pymssql requires parameters as tuple/list, not unpacked
+            cursor.execute(query, tuple(params))
             errors = cursor.fetchall()
             
             return errors
